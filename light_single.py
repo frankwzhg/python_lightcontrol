@@ -18,7 +18,7 @@ for row in cur.fetchall():
 
 
 def detect_ip():
-    ser = serial.Serial('/dev/ttyACM0', 9600)
+    ser = serial.Serial('/dev/ttyACM2', 9600)
 
     my_ipaddress = ip_list
     response_list = []

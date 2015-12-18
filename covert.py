@@ -47,4 +47,3 @@ print Main_LightSensor_Datafram
 
 def dataframe_struct(data_list, sensor_type):
     dict_list = []
-    
