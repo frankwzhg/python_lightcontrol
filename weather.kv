@@ -3,51 +3,71 @@
 #: import main main
 
 WeatherRoot:
-
 <WeatherRoot>:
+
     AddLocationForm:
 
-#    <AddLocationForm>:
-        id: location_form
-        orientation: "vertical"
-        search_input: search_box
-        search_results: search_results_list
-        BoxLayout:
+<AddLocationForm>:
+    id: location_form
+    orientation: "vertical"
+    search_input: search_box
+    search_results: search_results_list
+    BoxLayout:
+        height: "40dp"
+        size_hint_y: None
+        TextInput:
+            id:search_box
+            size_hint_x: 50
+            focus: True
+            multiline: False
+            on_text_validate: location_form.search_location()
+
+        Button:
+            text: "Search"
+            size_hint_x: 25
+            on_press: location_form.search_location()
+
+        Button:
+            text: "Current Location"
+            size_hint_x: 25
+            on_press: location_form.search_ll()
+
+
+
+    ListView:
+        id: search_results_list
+#            item_strings:[]
+        adapter:
+            ListAdapter(data=[], cls=main.LocationButton, args_converter=root.args_converter)
+        Button:
             height: "40dp"
             size_hint_y: None
-            TextInput:
-                id:search_box
-                size_hint_x: 50
-
-            Button:
-                text: "Search"
-                size_hint_x: 25
-                on_press: location_form.search_location()
-
-            Button:
-                text: "Current Location"
-                size_hint_x: 25
-                on_press: location_form.search_ll()
-
-
-        ListView:
-            id: search_results_list
-    #            item_strings:[]
-            adapter:
-                ListAdapter(data=[], cls=main.LocationButton)
+            text: "Cancel"
+            on_press: app.root.show_current_weather(None)
 
 <LocationButton>:
-    on_press: app.root.show_current_weather(self.text)
+    text: "{} ({})".format(self.location[0], self.location[1])
+    height: "40dp"
+    size_hint_y: None
+    on_press: app.root.show_current_weather(self.location)
 
-<CurrentWeather@BoxLayout>:
-    location:""
-    conditions:None
-    temp: None
-    temp_min: None
-    temp_max: None
+<CurrentWeather>:
     orientation: "vertical"
+    BoxLayout:
+        Label:
+            text: "{} ({})".format(root.location[0], root.location[1])
+            font_size: '30dp'
+        Label:
+            text: "{}".format(root.temp)
+            font_size: '30dp'
     Label:
-        text: root.location
+        text: root.conditions
+    BoxLayout:
+        orientation: 'horizontal'
+        Label:
+            text: "Low: {}".format(root.temp_min)
+        Label:
+            text: "High: {}".format(root.temp_max)
     BoxLayout:
         orientation:'horizontal'
         size_hint_y: None
