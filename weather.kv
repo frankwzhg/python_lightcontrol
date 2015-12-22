@@ -5,7 +5,7 @@
 WeatherRoot:
 <WeatherRoot>:
 
-    AddLocationForm:
+    AddLocationForm
 
 <AddLocationForm>:
     id: location_form
@@ -38,7 +38,7 @@ WeatherRoot:
         id: search_results_list
 #            item_strings:[]
         adapter:
-            ListAdapter(data=[], cls=main.LocationButton, args_converter=root.args_converter)
+            ListAdapter(data=[], cls=main.LocationButton, args_converter=main.locations_args_converter)
         Button:
             height: "40dp"
             size_hint_y: None
@@ -53,7 +53,7 @@ WeatherRoot:
 
 <CurrentWeather>:
     orientation: "vertical"
-    conditions: conditions
+#    conditions: conditions
     BoxLayout:
         Label:
             text: "{} ({})".format(root.location[0], root.location[1])
@@ -62,11 +62,12 @@ WeatherRoot:
             text: "{}".format(root.temp)
             font_size: '30dp'
     BoxLayout:
-        id: conditions
-#        UnknownConditions:
-#            conditions:root.conditions
-#    Label:
-#        text: root.conditions
+#        id: conditions
+        orientation: "horizontal"
+        Label:
+            text: root.conditions
+        AsyncImage:
+            source: root.conditions_image
     BoxLayout:
         orientation: 'horizontal'
         Label:
@@ -82,17 +83,40 @@ WeatherRoot:
             on_press: app.root.show_add_location_form()
         Button:
             text:'Forecast'
+            on_press: app.root.show_forecast(root.location)
+<Conditions>
+    Label:
+        text:root.conditions
 
-<UnknownConditions@BoxLayout>:
+<Locations@BoxLayout>:
+    orientation: 'vertical'
+    locations_list: locations_list
+    ListView:
+        id: locations_list
+        adapter:
+            ListAdapter(data=[],
+            cls=main.LocationButton,
+            args_converter = main.locations_args_converter
+            )
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint_y: None
+        height: "40dp"
+        Button:
+            text: "Add Location"
+            on_press: app.root.show_add_location_form()
+        Button:
+            text: "Settings"
+            on_press: app.open_settings()
+<UnknownConditions@Conditions>:
     conditions:""
-    canvas:
+    canvas.before:
         Color:
             rgb:[0.2,0.2,0.2]
         Ellipse:
             pos: self.pos
             size: self.size
-    Label:
-        text: root.conditions
+
 
 <ClearConditions@BoxLayout>:
     conditions: ""
@@ -138,3 +162,48 @@ WeatherRoot:
             size: [self.height - 40, self.height - 40]
     Label:
         text: root.conditions
+
+<ForecastLabel@BoxLayout>:
+    date: ""
+    conditions_image: ""
+    conditions: ""
+    temp_min: None
+    temp_max: None
+    canvas.before:
+        Color:
+            rgb: [0.2,0.2,0.2]
+        Line:
+            points: [self.pos[0], self.pos[1], self.width, self.pos[1]]
+        Label:
+            text: root.date
+        BoxLayout:
+            orientation: "vertical"
+            AsyncImage:
+                source: root.conditions_image
+            Label:
+                text: root.conditions
+        BoxLayout:
+            orientation: "vertical"
+            Label:
+                text: "Low: {}".format(root.temp_min)
+            Label:
+                text: "High: {}".format(root.temp_max)
+
+<Forecast>:
+    forecast_container: forecast_container
+    orientation: "vertical"
+    Label:
+        size_hint_y: 0.1
+        font_size: "30dp"
+        text: "{} ({})".format(root.location[0], root.location[1])
+    BoxLayout:
+        orientation: "vertical"
+        id: forecast_container
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint_y: None
+        height: "40dp"
+        Button:
+            text: "Current"
+            on_press: app.root.show_current_weather(root.location)
+

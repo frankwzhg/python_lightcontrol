@@ -11,7 +11,7 @@ from kivy.graphics import Color, Ellipse
 from kivy.clock import Clock
 from kivy.storage.jsonstore import JsonStore
 
-def locations_args_converter(index, data_item): #!
+def locations_args_converter(index, data_item):
         city, country = data_item
         return {'location':(city, country)}
 
@@ -169,13 +169,18 @@ class WeatherRoot(BoxLayout):
         self.clear_widgets()
         self.add_widget(self.locations)
 
-class LocationButton(ListItemButton): #!
+class LocationButton(ListItemButton):
     location = ListProperty()
 
-class AddLocationForm(BoxLayout): #!
+class AddLocationForm(BoxLayout):
     search_input = ObjectProperty()
-    search_results = ObjectProperty()
 
+    def search_ll(self):
+        search_template = "http://api.openweathermap.org/data/2.5/weather?lat={}" \
+                          "&lon={}&appid=d5366aed50c011a271178f9e85175646"
+        ll = self.search_input.text.split(',')
+        search_url = search_template.format(ll[0], ll[1])
+        request = UrlRequest(search_url, self.found_location_ll)
 
     def search_location(self):
         search_template = "http://api.openweathermap.org/data/2.5/find?q={" \
@@ -188,12 +193,20 @@ class AddLocationForm(BoxLayout): #!
         # print json.loads(data.decode())
         data = json.loads(data.decode()) if not isinstance(data, dict) else data
         cities = [(d['name'], d['sys']['country']) for d in data['list']]
+        print cities
         # self.search_results.item_strings = cities
-        self.search_results.item_strings = cities
         del self.search_results.adapter.data[:]
         self.search_results.adapter.data.extend(cities)
-        self.search_reaults._trigger_reset_populate()
+        # self.search_reaults._trigger_reset_populate()
 
+    def found_location_ll(self, request, data):
+
+        if data['cod'] == '404':
+            cities = ["please enter right latitude and longitude"]
+        else:
+            cities = ["{} ({})".format(data['name'], data['sys']['country'])]
+        # self.search_results.item_strings = cities
+        self.search_results.adapter.data.extend(cities)
 
 class WeatherApp(App):
     def build_config(self, config):
